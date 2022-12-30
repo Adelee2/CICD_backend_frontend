@@ -13,6 +13,10 @@ commands:
           when: on_fail
           command: |
               aws cloudformation delete-stack --stack-name ${PipelineID}
+              aws cloudformation deploy \                         
+              --template-file cloudfront.yml \
+              --stack-name InitialStack\
+              --parameter-overrides WorkflowID=mybucket095132937849
 
   # revert-migrations:
   #   description: Revert the last migration if successfully run in the current workflow.
@@ -145,6 +149,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: 
+          name: Install tar and gzip
+          command: |
+            yum -y install tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -152,7 +160,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople-backend \
               --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
               
       - run:
           name: Ensure front-end infrastructure exist
@@ -161,7 +169,7 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople-frontend \
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
               
       - run:
           name: Add back-end ip to ansible inventory
