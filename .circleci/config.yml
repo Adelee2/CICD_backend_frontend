@@ -150,8 +150,8 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              #--tags project=your-tag \
-              --stack-name adeleyeBackendStack-${CIRCLE_WORKFLOW_ID:0:7} \
+              --tags project=udapeople-backend \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
               
       - run:
@@ -159,22 +159,22 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              #--tags project=your-tag \
-              --stack-name adeleyeFrontendStack-${CIRCLE_WORKFLOW_ID:0:7} \
+              --tags project=udapeople-frontend \
+              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}"
               
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress'  --output text >> .circleci/ansible/inventory.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress'  --output text >> ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy_environment:
-          to: adeleyeFrontendStack-${CIRCLE_WORKFLOW_ID:0:7}
+          to: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy_environment: 
-          to: adeleyeBackendStack-${CIRCLE_WORKFLOW_ID:0:7}
+          to: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -195,9 +195,9 @@ jobs:
           command: |
             ansible-playbook -i inventory configure-server.yml
       - destroy_environment:
-          to: adeleyeFrontendStack-${CIRCLE_WORKFLOW_ID:0:7}
+          to: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy_environment: 
-          to: adeleyeBackendStack-${CIRCLE_WORKFLOW_ID:0:7}  # Here's where you will add some code to rollback on failure      
+          to: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}  # Here's where you will add some code to rollback on failure      
 
   # run-migrations:
   #   docker:
@@ -325,11 +325,11 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend]
+          filters:
+            branches:
+              only: [master]
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
       # - run-migrations:
