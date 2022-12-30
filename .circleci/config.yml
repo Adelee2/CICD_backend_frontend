@@ -86,6 +86,7 @@ jobs:
           name: test frontend
           command: |
               cd ~/project/frontend 
+              npm install
               npm run test
           # command: echo "test frontend failure"
           # when: on_fail     
@@ -101,6 +102,7 @@ jobs:
           name: test backend
           command: |
               cd ~/project/backend 
+              npm install
               npm run test
           # command: echo "test backend failure"
           # when: on_fail  
