@@ -2,7 +2,9 @@
 - name: "unzip the artifact.tar.gz"
   become: true
   command: |
-      tar –xvzf artifact.tar.gz –C .
+      pwd
+      ls -ltr
+      tar –xvzf ~/project/artifact.tar.gz –C .
 
 - name: "Start the web server using the command"
   become: true
