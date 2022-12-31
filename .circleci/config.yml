@@ -14,7 +14,7 @@ commands:
           command: |
               aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.to>>
               aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.to>>
-              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name InitialStack --parameter-overrides WorkflowID=mybucket095132937849
+              #aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name InitialStack --parameter-overrides WorkflowID=mybucket095132937849
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -27,7 +27,6 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            apk --no-cache add curl
             SUCCESS=$(curl --insecure  https://kvdb.io/FdcpqaS1G9MPq7sFwDw8mw/migration_<< parameters.to >>)
             if(( $SUCCESS==1 )); 
             then
@@ -232,7 +231,7 @@ jobs:
           name: Install dependencies
           command: |
             yum -y install tar gzip
-            curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+            yum install curl
             yum install nodejs
             node --version
       - attach_workspace:
@@ -273,6 +272,7 @@ jobs:
             pip3 install awscli
             apk add --update ansible
             apk add --update nodejs npm
+            apk add curl
       - run:
           name: Deploy backend
           command: |  
