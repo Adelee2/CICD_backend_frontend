@@ -6,13 +6,14 @@ commands:
     parameters:
       to:
         type: string
-        default: "adeleyeStack-${CIRCLE_WORKFLOW_ID:0:7}"
+        default: "${CIRCLE_WORKFLOW_ID:0:7}"
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-              aws cloudformation delete-stack --stack-name <<parameters.to>>
+              aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.to>>
+              aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.to>>
               aws cloudformation deploy \                         
               --template-file cloudfront.yml \
               --stack-name InitialStack\
@@ -177,10 +178,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment:
-          to: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment: 
-          to: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment
 
   configure-infrastructure:
     docker:
@@ -202,10 +200,7 @@ jobs:
             cat ~/project/.circleci/ansible/inventory.txt 
             cd .circleci/ansible
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt configure-server.yml
-      - destroy-environment:
-          to: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment: 
-          to: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" # Here's where you will add some code to rollback on failure      
+      - destroy-environment 
 
   run-migrations:
     docker:
@@ -228,10 +223,7 @@ jobs:
                 curl https://kvdb.io/FdcpqaS1G9MPq7sFwDw8mw/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - revert-migrations
-      - destroy-environment:
-          to: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment: 
-          to: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"    
+      - destroy-environment
 
   deploy-frontend:
     docker:
@@ -266,10 +258,7 @@ jobs:
             aws s3 cp dist s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
       - revert-migrations
-      - destroy-environment:
-          to: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment: 
-          to: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"    
+      - destroy-environment
                     
   deploy-backend:
     docker:
@@ -299,12 +288,9 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat ~/project/.circleci/ansible/inventory.txt 
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt deploy-backend.yml
-            
+
       - revert-migrations
-      - destroy-environment:
-          to: "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment: 
-          to: "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"  
+      - destroy-environment
 
   # smoke-test:
   #   docker:
