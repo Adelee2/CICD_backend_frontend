@@ -4,7 +4,7 @@
   unarchive:
     src: ~/project/artifact.tar.gz
     dest: ./
-    remote_src: yes
+    # remote_src: yes
 
 
 - name: "Start the web server using the command"

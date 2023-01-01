@@ -239,10 +239,10 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[*].Instances[*].PublicIpAddress' )
-            export API_URL="http://${BACKEND_IP[0][0]}:3030"
+            export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query 'Reservations[0].Instances[0].PublicIpAddress' )
+            export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP[0][0]}:3030" >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
           name: Deploy frontend objects
@@ -279,14 +279,18 @@ jobs:
             #npm i
             #npm run build
             cd ../
-            echo "listing files...."
-            echo ls -a
-            ls -a
+            
             # Zip the directory
             tar -C ~/project/backend -czvf artifact.tar.gz .
+            echo "listing files in cd../ ...."
+            echo ls -a
+            ls -a
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat ~/project/.circleci/ansible/inventory.txt 
+            echo "listing files in .circleci/ansible....."
+            echo ls -a
+            ls -a
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt deploy-backend.yml
 
       - revert-migrations
