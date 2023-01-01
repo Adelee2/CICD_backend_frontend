@@ -231,8 +231,9 @@ jobs:
           name: Install dependencies
           command: |
             yum -y install tar gzip
-            #yum install curl
-            yum install nodejs
+            yum install curl
+            curl --silent --location https://rpm.nodesource.com/setup_16.x | bash -
+            yum -y install nodejs
       # - attach_workspace:
       #     at: ~/
       - run:
@@ -279,6 +280,7 @@ jobs:
             npm i
             npm run build
             cd ..
+            ls -a
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
