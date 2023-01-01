@@ -247,7 +247,6 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            npm run build
             cd frontend
             npm install
             npm run build
@@ -279,7 +278,7 @@ jobs:
             cd backend
             npm i
             npm run build
-            cd ..
+            cd ../
             echo "listing files...."
             echo ls -a
             ls -a
