@@ -289,6 +289,30 @@ jobs:
 
       - revert-migrations
       # - destroy-environment
+  deploy-nodeexporter:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys: # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["f8:66:4c:f5:82:13:a2:43:5e:4c:73:6b:21:e9:4c:1f"] 
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies like tar, npm, ansible
+          command: |
+            pip3 install awscli
+            apk add --update ansible
+            apk add --update nodejs npm
+            apk add curl
+      - run:
+          name: Deploy backend
+          command: |  
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat ~/project/.circleci/ansible/inventory.txt 
+            
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt deploy-nodeexporter.yml
 
   smoke-test:
     docker:
@@ -409,3 +433,8 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
+      - deploy-nodeexporter:
+          requires: [deploy-backend]
+          filters:
+            branches:
+              only: [dev-monitor]
