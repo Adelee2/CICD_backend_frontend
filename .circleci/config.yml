@@ -434,7 +434,6 @@ workflows:
       - cleanup:
           requires: [cloudfront-update]
       - deploy-nodeexporter:
-          requires: [deploy-backend]
           filters:
             branches:
               only: [dev-monitor]
