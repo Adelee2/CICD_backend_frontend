@@ -310,6 +310,7 @@ jobs:
           command: |  
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
+            aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-7f35423" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text >> ~/project/.circleci/ansible/inventory.txt
             cat ~/project/.circleci/ansible/inventory.txt 
             
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt deploy-nodeexporter.yml
